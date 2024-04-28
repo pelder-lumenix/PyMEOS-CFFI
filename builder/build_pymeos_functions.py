@@ -230,7 +230,7 @@ def check_modifiers(functions: List[str]) -> None:
             )
 
 
-def main(header_path="pymeos_cffi/builder/meos.h"):
+def build_pymeos_functions(header_path="builder/meos.h"):
     with open(header_path) as f:
         content = f.read()
     # Regex lines:
@@ -252,14 +252,15 @@ def main(header_path="pymeos_cffi/builder/meos.h"):
         f_regex, "".join(content.splitlines()), flags=re.RegexFlag.MULTILINE
     )
 
-    template_path = os.path.join(os.path.dirname(__file__), "templates/functions.py")
-    init_template_path = os.path.join(os.path.dirname(__file__), "templates/init.py")
+    file_path = os.path.dirname(__file__)
+    template_path = os.path.join(file_path, "templates/functions.py")
+    init_template_path = os.path.join(file_path, "templates/init.py")
     with open(template_path) as f, open(init_template_path) as i:
         base = f.read()
         init_text = i.read()
 
-    functions_path = os.path.join(os.path.dirname(__file__), "../functions.py")
-    init_path = os.path.join(os.path.dirname(__file__), "../__init__.py")
+    functions_path = os.path.join(file_path, "../pymeos_cffi/functions.py")
+    init_path = os.path.join(file_path, "../pymeos_cffi/__init__.py")
 
     with open(functions_path, "w+") as file:
         file.write(base)
@@ -544,4 +545,4 @@ def build_function_string(
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    build_pymeos_functions(*sys.argv[1:])

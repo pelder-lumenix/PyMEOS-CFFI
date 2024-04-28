@@ -56,7 +56,7 @@ def remove_repeated_functions(
     return content, seen_functions
 
 
-def main(include_dir, so_path=None, destination_path="pymeos_cffi/builder/meos.h"):
+def build_header_file(include_dir, so_path=None, destination_path="builder/meos.h"):
     files = ["meos.h", "meos_catalog.h", "meos_internal.h"]
     global_content = ""
     functions = set()
@@ -102,12 +102,21 @@ def main(include_dir, so_path=None, destination_path="pymeos_cffi/builder/meos.h
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        main(*sys.argv[1:])
+        build_header_file(*sys.argv[1:])
     else:
         if sys.platform == "linux":
-            main("/usr/local/include", "/usr/local/lib/libmeos.so")
+            build_header_file(
+                "/usr/local/include",
+                "/usr/local/lib/libmeos.so",
+            )
         elif sys.platform == "darwin":
             if platform.processor() == "arm":
-                main("/opt/homebrew/include", "/opt/homebrew/lib/libmeos.dylib")
+                build_header_file(
+                    "/opt/homebrew/include",
+                    "/opt/homebrew/lib/libmeos.dylib",
+                )
             else:
-                main("/usr/local/include", "/usr/local/lib/libmeos.dylib")
+                build_header_file(
+                    "/usr/local/include",
+                    "/usr/local/lib/libmeos.dylib",
+                )

@@ -3,7 +3,7 @@ import shutil
 
 from setuptools import setup
 
-
+# Copy PROJ data to package data
 package_data = []
 
 # Conditionally copy PROJ DATA to make self-contained wheels
@@ -28,10 +28,10 @@ if os.environ.get("PACKAGE_DATA"):
 else:
     print("Not copying PROJ data to package data")
 
+
 setup(
-    packages=["pymeos_cffi", "pymeos_cffi.builder"],
-    setup_requires=["cffi"],
-    include_package_data=True,
+    packages=["pymeos_cffi"],
     package_data={"pymeos_cffi": package_data},
-    cffi_modules=["pymeos_cffi/builder/build_pymeos.py:ffibuilder"],
+    setup_requires=["cffi"],
+    cffi_modules=["builder/build_pymeos.py:ffibuilder"],
 )

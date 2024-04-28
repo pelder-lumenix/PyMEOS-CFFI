@@ -4,7 +4,7 @@ from cffi import FFI
 
 ffibuilder = FFI()
 
-with open("./pymeos_cffi/builder/meos.h", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "meos.h"), "r") as f:
     content = f.read()
 
 ffibuilder.cdef(content)

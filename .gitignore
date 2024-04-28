@@ -15,4 +15,5 @@ dist
 *.o
 *.so
 
-test.py
+sandbox.py
+sandbox.ipynb

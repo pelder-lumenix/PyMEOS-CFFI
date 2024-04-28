@@ -3,7 +3,7 @@ name: Build PyMEOS CFFI
 on:
   create:
     tags:
-      - "pymeos-cffi-[0-9]+.[0-9]+.[0-9]+*"
+      - "v[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
   build_sdist:
@@ -25,15 +25,15 @@ jobs:
           python -m pip install build
 
       - name: Build sdist
-        working-directory: pymeos_cffi
         run: |
           python -m build -s
           ls -l dist
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: pymeos_cffi-sdist
-          path: ./pymeos_cffi/dist/pymeos_cffi-*.tar.gz
+          path: ./dist/pymeos_cffi-*.tar.gz
 
   build_wheels:
     name: Build PyMEOS CFFI for ${{ matrix.os }}
@@ -105,7 +105,6 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64" >> $GITHUB_ENV
 
       - name: Build wheels
-        working-directory: pymeos_cffi
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
@@ -135,13 +134,14 @@ jobs:
             make -j &&
             make install
 
-          # Skip tests since they will be thoroughly tested in the next job
+          # Skip tests since they will be tested in the next job
           CIBW_TEST_SKIP: "*"
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: pymeos_cffi-wheels-${{ matrix.os }}
-          path: ./pymeos_cffi/wheelhouse/*.whl
+          path: ./wheelhouse/*.whl
 
   test_wheels:
     name: Test PyMEOS CFFI wheel - Python ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -152,15 +152,6 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
         os: [ ubuntu-latest, macos-13, macos-14 ]
-        exclude:
-          # Necessary due to issue with macOS runners. See
-          # https://github.com/actions/setup-python/issues/808
-          # Can be removed once this PR is merged:
-          # https://github.com/actions/python-versions/pull/259
-          - os: macos-14
-            python-version: "3.8"
-          - os: macos-14
-            python-version: "3.9"
 
     steps:
       - name: Checkout
@@ -178,21 +169,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
-      - name: Install PyMEOS dependencies
+      - name: Install PyMEOS-CFFI wheels
         run: |
           python -m pip install --upgrade pip
           pip install -f ./pymeos_cffi_wheels pymeos_cffi
-          pip install -r pymeos/dev-requirements.txt
 
-      - name: Test PyMEOS with pytest
-        working-directory: pymeos
-        run: pytest
+      - name: Run PyMEOS-CFFI check
+        run: |
+          python -c "import pymeos_cffi; print(pymeos_cffi.__version__);"
+          python -c "from pymeos_cffi import *; meos_initialize(None); print(tpoint_out(tgeompoint_in('POINT(2 3)@2000-01-01'), 3)); meos_finalize();"
 
   upload_pypi:
     name: Upload to PyPI
     needs: [ test_wheels, build_sdist ]
     runs-on: ubuntu-22.04
-    if: github.repository == 'MobilityDB/PyMEOS'
+    if: github.repository == 'MobilityDB/PyMEOS-CFFI'
     permissions:
       id-token: write
     steps:
