@@ -205,7 +205,6 @@ def meos_get_intervalstyle() -> str:
 
 
 def meos_initialize(tz_str: "Optional[str]") -> None:
-
     if "PROJ_DATA" not in os.environ and "PROJ_LIB" not in os.environ:
         proj_dir = os.path.join(os.path.dirname(__file__), "proj_data")
         if os.path.exists(proj_dir):
@@ -6964,16 +6963,15 @@ def tsequenceset_make(
 
 def tsequenceset_make_gaps(
     instants: "const TInstant **",
-    count: int,
     interp: "interpType",
-    maxt: "Interval *",
+    maxt: "Optional['Interval *']",
     maxdist: float,
 ) -> "TSequenceSet *":
     instants_converted = [_ffi.cast("const TInstant *", x) for x in instants]
     interp_converted = _ffi.cast("interpType", interp)
-    maxt_converted = _ffi.cast("Interval *", maxt)
+    maxt_converted = _ffi.cast("Interval *", maxt) if maxt is not None else _ffi.NULL
     result = _lib.tsequenceset_make_gaps(
-        instants_converted, count, interp_converted, maxt_converted, maxdist
+        instants_converted, len(instants), interp_converted, maxt_converted, maxdist
     )
     _check_error()
     return result if result != _ffi.NULL else None

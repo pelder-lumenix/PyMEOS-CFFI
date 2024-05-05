@@ -89,6 +89,7 @@ function_modifiers = {
     "floatset_make": array_parameter_modifier("values", "count"),
     "textset_make": textset_make_modifier,
     "geoset_make": array_length_remover_modifier("values", "count"),
+    "tsequenceset_make_gaps": array_length_remover_modifier("instants", "count"),
 }
 
 # List of result function parameters in tuples of (function, parameter)
@@ -185,6 +186,7 @@ nullable_parameters = {
     ("tpoint_minus_geom_time", "zspan"),
     ("tpoint_minus_geom_time", "period"),
     ("stbox_make", "s"),
+    ("tsequenceset_make_gaps", "maxt"),
 }
 
 

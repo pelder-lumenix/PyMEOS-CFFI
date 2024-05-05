@@ -428,7 +428,6 @@ typedef enum
   INTERSECTS =     0,
   CONTAINS =       1,
   TOUCHES =        2,
-  COVERS =         3,
 } spatialRel;
 
 typedef struct
@@ -545,9 +544,9 @@ extern int meos_errno_reset(void);
 
 typedef void (*error_handler_fn)(int, int, char *);
 
-/* extern void meos_initialize_timezone(const char *name);  (undefined) */
+extern void meos_initialize_timezone(const char *name);
 extern void meos_initialize_error_handler(error_handler_fn err_handler);
-/* extern void meos_finalize_timezone(void);  (undefined) */
+extern void meos_finalize_timezone(void);
 
 extern bool meos_set_datestyle(char *newval, void *extra);
 extern bool meos_set_intervalstyle(char *newval, int extra);
