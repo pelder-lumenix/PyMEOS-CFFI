@@ -42,7 +42,6 @@ def textset_make_modifier(function: str) -> str:
 
 def meos_initialize_modifier(_: str) -> str:
     return """def meos_initialize(tz_str: "Optional[str]") -> None:
-    
     if "PROJ_DATA" not in os.environ and "PROJ_LIB" not in os.environ:
         proj_dir = os.path.join(os.path.dirname(__file__), "proj_data")
         if os.path.exists(proj_dir):
