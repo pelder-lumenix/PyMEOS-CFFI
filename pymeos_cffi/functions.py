@@ -56,9 +56,8 @@ def get_address(value: "Any") -> "Any *":
 
 
 def datetime_to_timestamptz(dt: datetime) -> "TimestampTz":
-    return _lib.pg_timestamptz_in(
-        dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1
-    )
+    delta = dt - _pg_datetimetz_epoch
+    return delta.microseconds + 1_000_000 * (86_400 * delta.days + delta.seconds)
 
 
 def timestamptz_to_datetime(ts: "TimestampTz") -> datetime:
