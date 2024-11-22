@@ -1,7 +1,7 @@
 import logging
 import os
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from typing import Any, Tuple, Optional, List
 
 import _meos_cffi
@@ -18,6 +18,8 @@ _lib = _meos_cffi.lib
 _error: Optional[int] = None
 _error_level: Optional[int] = None
 _error_message: Optional[str] = None
+
+_pg_datetimetz_epoch = datetime(2000, 1, 1, tzinfo=timezone.utc)
 
 logger = logging.getLogger("pymeos_cffi")
 
@@ -60,7 +62,7 @@ def datetime_to_timestamptz(dt: datetime) -> "TimestampTz":
 
 
 def timestamptz_to_datetime(ts: "TimestampTz") -> datetime:
-    return parse(pg_timestamptz_out(ts))
+   return _pg_datetimetz_epoch + timedelta(microseconds=ts)
 
 
 def date_to_date_adt(dt: date) -> "DateADT":
