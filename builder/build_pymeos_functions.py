@@ -135,7 +135,6 @@ nullable_parameters = {
     ("meos_set_intervalstyle", "extra"),
     ("temporal_append_tinstant", "maxt"),
     ("temporal_as_mfjson", "srs"),
-    ("geo_as_geojson", "srs"),
     ("tstzspan_shift_scale", "shift"),
     ("tstzspan_shift_scale", "duration"),
     ("tstzset_shift_scale", "shift"),
@@ -181,10 +180,6 @@ nullable_parameters = {
     ("tintbox_value_time_tiles", "torigin"),
     ("tfloatbox_value_time_tiles", "xorigin"),
     ("tfloatbox_value_time_tiles", "torigin"),
-    ("tpoint_at_geom_time", "zspan"),
-    ("tpoint_at_geom_time", "period"),
-    ("tpoint_minus_geom_time", "zspan"),
-    ("tpoint_minus_geom_time", "period"),
     ("stbox_make", "s"),
     ("tsequenceset_make_gaps", "maxt"),
 }

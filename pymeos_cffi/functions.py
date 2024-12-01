@@ -143,6 +143,115 @@ def as_tsequenceset(temporal: "Temporal *") -> "TSequenceSet *":
 # -----------------------------------------------------------------------------
 # ----------------------End of manually-defined functions----------------------
 # -----------------------------------------------------------------------------
+def date_in(string: str) -> "DateADT":
+    string_converted = string.encode("utf-8")
+    result = _lib.date_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def date_out(d: "DateADT") -> str:
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.date_out(d_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def interval_cmp(interv1: "const Interval *", interv2: "const Interval *") -> "int":
+    interv1_converted = _ffi.cast("const Interval *", interv1)
+    interv2_converted = _ffi.cast("const Interval *", interv2)
+    result = _lib.interval_cmp(interv1_converted, interv2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def interval_in(string: str, typmod: int) -> "Interval *":
+    string_converted = string.encode("utf-8")
+    typmod_converted = _ffi.cast("int32", typmod)
+    result = _lib.interval_in(string_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def interval_make(
+    years: int, months: int, weeks: int, days: int, hours: int, mins: int, secs: float
+) -> "Interval *":
+    years_converted = _ffi.cast("int32", years)
+    months_converted = _ffi.cast("int32", months)
+    weeks_converted = _ffi.cast("int32", weeks)
+    days_converted = _ffi.cast("int32", days)
+    hours_converted = _ffi.cast("int32", hours)
+    mins_converted = _ffi.cast("int32", mins)
+    result = _lib.interval_make(
+        years_converted,
+        months_converted,
+        weeks_converted,
+        days_converted,
+        hours_converted,
+        mins_converted,
+        secs,
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def interval_out(interv: "const Interval *") -> str:
+    interv_converted = _ffi.cast("const Interval *", interv)
+    result = _lib.interval_out(interv_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def time_in(string: str, typmod: int) -> "TimeADT":
+    string_converted = string.encode("utf-8")
+    typmod_converted = _ffi.cast("int32", typmod)
+    result = _lib.time_in(string_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def time_out(t: "TimeADT") -> str:
+    t_converted = _ffi.cast("TimeADT", t)
+    result = _lib.time_out(t_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def timestamp_in(string: str, typmod: int) -> "Timestamp":
+    string_converted = string.encode("utf-8")
+    typmod_converted = _ffi.cast("int32", typmod)
+    result = _lib.timestamp_in(string_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timestamp_out(t: int) -> str:
+    t_converted = _ffi.cast("Timestamp", t)
+    result = _lib.timestamp_out(t_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def timestamptz_in(string: str, typmod: int) -> "TimestampTz":
+    string_converted = string.encode("utf-8")
+    typmod_converted = _ffi.cast("int32", typmod)
+    result = _lib.timestamptz_in(string_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timestamptz_out(t: int) -> str:
+    t_converted = _ffi.cast("TimestampTz", t)
+    result = _lib.timestamptz_out(t_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
 def geo_get_srid(g: "const GSERIALIZED *") -> "int32":
     g_converted = _ffi.cast("const GSERIALIZED *", g)
     result = _lib.geo_get_srid(g_converted)
@@ -322,115 +431,6 @@ def mult_interval_double(interv: "const Interval *", factor: float) -> "Interval
     return result if result != _ffi.NULL else None
 
 
-def pg_date_in(string: str) -> "DateADT":
-    string_converted = string.encode("utf-8")
-    result = _lib.pg_date_in(string_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_date_out(d: "DateADT") -> str:
-    d_converted = _ffi.cast("DateADT", d)
-    result = _lib.pg_date_out(d_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def pg_interval_cmp(interv1: "const Interval *", interv2: "const Interval *") -> "int":
-    interv1_converted = _ffi.cast("const Interval *", interv1)
-    interv2_converted = _ffi.cast("const Interval *", interv2)
-    result = _lib.pg_interval_cmp(interv1_converted, interv2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_interval_in(string: str, typmod: int) -> "Interval *":
-    string_converted = string.encode("utf-8")
-    typmod_converted = _ffi.cast("int32", typmod)
-    result = _lib.pg_interval_in(string_converted, typmod_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_interval_make(
-    years: int, months: int, weeks: int, days: int, hours: int, mins: int, secs: float
-) -> "Interval *":
-    years_converted = _ffi.cast("int32", years)
-    months_converted = _ffi.cast("int32", months)
-    weeks_converted = _ffi.cast("int32", weeks)
-    days_converted = _ffi.cast("int32", days)
-    hours_converted = _ffi.cast("int32", hours)
-    mins_converted = _ffi.cast("int32", mins)
-    result = _lib.pg_interval_make(
-        years_converted,
-        months_converted,
-        weeks_converted,
-        days_converted,
-        hours_converted,
-        mins_converted,
-        secs,
-    )
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_interval_out(interv: "const Interval *") -> str:
-    interv_converted = _ffi.cast("const Interval *", interv)
-    result = _lib.pg_interval_out(interv_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def pg_time_in(string: str, typmod: int) -> "TimeADT":
-    string_converted = string.encode("utf-8")
-    typmod_converted = _ffi.cast("int32", typmod)
-    result = _lib.pg_time_in(string_converted, typmod_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_time_out(t: "TimeADT") -> str:
-    t_converted = _ffi.cast("TimeADT", t)
-    result = _lib.pg_time_out(t_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def pg_timestamp_in(string: str, typmod: int) -> "Timestamp":
-    string_converted = string.encode("utf-8")
-    typmod_converted = _ffi.cast("int32", typmod)
-    result = _lib.pg_timestamp_in(string_converted, typmod_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_timestamp_out(t: int) -> str:
-    t_converted = _ffi.cast("Timestamp", t)
-    result = _lib.pg_timestamp_out(t_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def pg_timestamptz_in(string: str, typmod: int) -> "TimestampTz":
-    string_converted = string.encode("utf-8")
-    typmod_converted = _ffi.cast("int32", typmod)
-    result = _lib.pg_timestamptz_in(string_converted, typmod_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pg_timestamptz_out(t: int) -> str:
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.pg_timestamptz_out(t_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
 def text2cstring(textptr: "text *") -> str:
     result = _lib.text2cstring(textptr)
     result = _ffi.string(result).decode("utf-8")
@@ -504,131 +504,6 @@ def timestamp_to_date(t: int) -> "DateADT":
 def timestamptz_to_date(t: int) -> "DateADT":
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.timestamptz_to_date(t_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geo_as_ewkb(
-    gs: "const GSERIALIZED *", endian: str, size: "size_t *"
-) -> "uint8_t *":
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    endian_converted = endian.encode("utf-8")
-    size_converted = _ffi.cast("size_t *", size)
-    result = _lib.geo_as_ewkb(gs_converted, endian_converted, size_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geo_as_ewkt(gs: "const GSERIALIZED *", precision: int) -> str:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geo_as_ewkt(gs_converted, precision)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def geo_as_geojson(
-    gs: "const GSERIALIZED *", option: int, precision: int, srs: "Optional[str]"
-) -> str:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    srs_converted = srs.encode("utf-8") if srs is not None else _ffi.NULL
-    result = _lib.geo_as_geojson(gs_converted, option, precision, srs_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def geo_as_hexewkb(gs: "const GSERIALIZED *", endian: str) -> str:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    endian_converted = endian.encode("utf-8")
-    result = _lib.geo_as_hexewkb(gs_converted, endian_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def geo_as_text(gs: "const GSERIALIZED *", precision: int) -> str:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geo_as_text(gs_converted, precision)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def geo_from_ewkb(
-    wkb: "const uint8_t *", wkb_size: "size_t", srid: int
-) -> "GSERIALIZED *":
-    wkb_converted = _ffi.cast("const uint8_t *", wkb)
-    wkb_size_converted = _ffi.cast("size_t", wkb_size)
-    srid_converted = _ffi.cast("int32", srid)
-    result = _lib.geo_from_ewkb(wkb_converted, wkb_size_converted, srid_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geo_from_geojson(geojson: str) -> "GSERIALIZED *":
-    geojson_converted = geojson.encode("utf-8")
-    result = _lib.geo_from_geojson(geojson_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geo_out(gs: "const GSERIALIZED *") -> str:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geo_out(gs_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def geo_same(gs1: "const GSERIALIZED *", gs2: "const GSERIALIZED *") -> "bool":
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geo_same(gs1_converted, gs2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geography_from_hexewkb(wkt: str) -> "GSERIALIZED *":
-    wkt_converted = wkt.encode("utf-8")
-    result = _lib.geography_from_hexewkb(wkt_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geography_from_text(wkt: str, srid: int) -> "GSERIALIZED *":
-    wkt_converted = wkt.encode("utf-8")
-    result = _lib.geography_from_text(wkt_converted, srid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geometry_from_hexewkb(wkt: str) -> "GSERIALIZED *":
-    wkt_converted = wkt.encode("utf-8")
-    result = _lib.geometry_from_hexewkb(wkt_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geometry_from_text(wkt: str, srid: int) -> "GSERIALIZED *":
-    wkt_converted = wkt.encode("utf-8")
-    result = _lib.geometry_from_text(wkt_converted, srid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pgis_geography_in(string: str, typmod: int) -> "GSERIALIZED *":
-    string_converted = string.encode("utf-8")
-    typmod_converted = _ffi.cast("int32", typmod)
-    result = _lib.pgis_geography_in(string_converted, typmod_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pgis_geometry_in(string: str, typmod: int) -> "GSERIALIZED *":
-    string_converted = string.encode("utf-8")
-    typmod_converted = _ffi.cast("int32", typmod)
-    result = _lib.pgis_geometry_in(string_converted, typmod_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -1596,7 +1471,7 @@ def geoset_end_value(s: "const Set *") -> "GSERIALIZED *":
     return result if result != _ffi.NULL else None
 
 
-def geoset_srid(s: "const Set *") -> "int":
+def geoset_srid(s: "const Set *") -> "int32_t":
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.geoset_srid(s_converted)
     _check_error()
@@ -2154,28 +2029,28 @@ def geoset_round(s: "const Set *", maxdd: int) -> "Set *":
     return result if result != _ffi.NULL else None
 
 
-def geoset_set_srid(s: "const Set *", srid: int) -> "Set *":
+def geoset_set_srid(s: "const Set *", srid: "int32_t") -> "Set *":
     s_converted = _ffi.cast("const Set *", s)
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.geoset_set_srid(s_converted, srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def geoset_transform(s: "const Set *", srid: int) -> "Set *":
+def geoset_transform(s: "const Set *", srid: "int32_t") -> "Set *":
     s_converted = _ffi.cast("const Set *", s)
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.geoset_transform(s_converted, srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def geoset_transform_pipeline(
-    s: "const Set *", pipelinestr: str, srid: int, is_forward: bool
+    s: "const Set *", pipelinestr: str, srid: "int32_t", is_forward: bool
 ) -> "Set *":
     s_converted = _ffi.cast("const Set *", s)
     pipelinestr_converted = pipelinestr.encode("utf-8")
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.geoset_transform_pipeline(
         s_converted, pipelinestr_converted, srid_converted, is_forward
     )
@@ -2210,20 +2085,20 @@ def intspanset_shift_scale(
     return result if result != _ffi.NULL else None
 
 
-def point_transform(gs: "const GSERIALIZED *", srid: int) -> "GSERIALIZED *":
+def point_transform(gs: "const GSERIALIZED *", srid: "int32_t") -> "GSERIALIZED *":
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.point_transform(gs_converted, srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def point_transform_pipeline(
-    gs: "const GSERIALIZED *", pipelinestr: str, srid: int, is_forward: bool
+    gs: "const GSERIALIZED *", pipelinestr: str, srid: "int32_t", is_forward: bool
 ) -> "GSERIALIZED *":
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     pipelinestr_converted = pipelinestr.encode("utf-8")
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.point_transform_pipeline(
         gs_converted, pipelinestr_converted, srid_converted, is_forward
     )
@@ -5881,7 +5756,7 @@ def stbox_perimeter(box: "const STBox *", spheroid: bool) -> "double":
     return result if result != _ffi.NULL else None
 
 
-def stbox_srid(box: "const STBox *") -> "int32":
+def stbox_srid(box: "const STBox *") -> "int32_t":
     box_converted = _ffi.cast("const STBox *", box)
     result = _lib.stbox_srid(box_converted)
     _check_error()
@@ -6166,9 +6041,9 @@ def stbox_round(box: "const STBox *", maxdd: int) -> "STBox *":
     return result if result != _ffi.NULL else None
 
 
-def stbox_set_srid(box: "const STBox *", srid: int) -> "STBox *":
+def stbox_set_srid(box: "const STBox *", srid: "int32_t") -> "STBox *":
     box_converted = _ffi.cast("const STBox *", box)
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.stbox_set_srid(box_converted, srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -6193,20 +6068,20 @@ def stbox_shift_scale_time(
     return result if result != _ffi.NULL else None
 
 
-def stbox_transform(box: "const STBox *", srid: int) -> "STBox *":
+def stbox_transform(box: "const STBox *", srid: "int32_t") -> "STBox *":
     box_converted = _ffi.cast("const STBox *", box)
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.stbox_transform(box_converted, srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def stbox_transform_pipeline(
-    box: "const STBox *", pipelinestr: str, srid: int, is_forward: bool
+    box: "const STBox *", pipelinestr: str, srid: "int32_t", is_forward: bool
 ) -> "STBox *":
     box_converted = _ffi.cast("const STBox *", box)
     pipelinestr_converted = pipelinestr.encode("utf-8")
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.stbox_transform_pipeline(
         box_converted, pipelinestr_converted, srid_converted, is_forward
     )
@@ -7705,6 +7580,13 @@ def float_degrees(value: float, normalize: bool) -> "double":
     return result if result != _ffi.NULL else None
 
 
+def meos_srid_is_latlong(srid: "int32_t") -> "bool":
+    srid_converted = _ffi.cast("int32_t", srid)
+    result = _lib.meos_srid_is_latlong(srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def temporal_scale_time(
     temp: "const Temporal *", duration: "const Interval *"
 ) -> "Temporal *":
@@ -8231,23 +8113,13 @@ def tnumber_minus_tbox(temp: "const Temporal *", box: "const TBox *") -> "Tempor
     return result if result != _ffi.NULL else None
 
 
-def tpoint_at_geom_time(
-    temp: "const Temporal *",
-    gs: "const GSERIALIZED *",
-    zspan: "Optional['const Span *']",
-    period: "Optional['const Span *']",
+def tpoint_at_geom(
+    temp: "const Temporal *", gs: "const GSERIALIZED *", zspan: "const Span *"
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    zspan_converted = (
-        _ffi.cast("const Span *", zspan) if zspan is not None else _ffi.NULL
-    )
-    period_converted = (
-        _ffi.cast("const Span *", period) if period is not None else _ffi.NULL
-    )
-    result = _lib.tpoint_at_geom_time(
-        temp_converted, gs_converted, zspan_converted, period_converted
-    )
+    zspan_converted = _ffi.cast("const Span *", zspan)
+    result = _lib.tpoint_at_geom(temp_converted, gs_converted, zspan_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -8270,23 +8142,13 @@ def tpoint_at_value(temp: "const Temporal *", gs: "GSERIALIZED *") -> "Temporal 
     return result if result != _ffi.NULL else None
 
 
-def tpoint_minus_geom_time(
-    temp: "const Temporal *",
-    gs: "const GSERIALIZED *",
-    zspan: "Optional['const Span *']",
-    period: "Optional['const Span *']",
+def tpoint_minus_geom(
+    temp: "const Temporal *", gs: "const GSERIALIZED *", zspan: "const Span *"
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    zspan_converted = (
-        _ffi.cast("const Span *", zspan) if zspan is not None else _ffi.NULL
-    )
-    period_converted = (
-        _ffi.cast("const Span *", period) if period is not None else _ffi.NULL
-    )
-    result = _lib.tpoint_minus_geom_time(
-        temp_converted, gs_converted, zspan_converted, period_converted
-    )
+    zspan_converted = _ffi.cast("const Span *", zspan)
+    result = _lib.tpoint_minus_geom(temp_converted, gs_converted, zspan_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -11591,7 +11453,7 @@ def tpoint_speed(temp: "const Temporal *") -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def tpoint_srid(temp: "const Temporal *") -> "int":
+def tpoint_srid(temp: "const Temporal *") -> "int32_t":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpoint_srid(temp_converted)
     _check_error()
@@ -11685,9 +11547,9 @@ def tpoint_make_simple(temp: "const Temporal *") -> "Tuple['Temporal **', 'int']
     return result if result != _ffi.NULL else None, count[0]
 
 
-def tpoint_set_srid(temp: "const Temporal *", srid: int) -> "Temporal *":
+def tpoint_set_srid(temp: "const Temporal *", srid: "int32_t") -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
-    srid_converted = _ffi.cast("int32", srid)
+    srid_converted = _ffi.cast("int32_t", srid)
     result = _lib.tpoint_set_srid(temp_converted, srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -17198,19 +17060,47 @@ def tnumberseqset_restrict_spanset(
     return result if result != _ffi.NULL else None
 
 
-def tpoint_restrict_geom_time(
+def tnpoint_restrict_geom(
     temp: "const Temporal *",
     gs: "const GSERIALIZED *",
     zspan: "const Span *",
-    period: "const Span *",
-    atfunc: bool,
+    atfunc: "const bool",
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     zspan_converted = _ffi.cast("const Span *", zspan)
-    period_converted = _ffi.cast("const Span *", period)
-    result = _lib.tpoint_restrict_geom_time(
-        temp_converted, gs_converted, zspan_converted, period_converted, atfunc
+    atfunc_converted = _ffi.cast("const bool", atfunc)
+    result = _lib.tnpoint_restrict_geom(
+        temp_converted, gs_converted, zspan_converted, atfunc_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnpoint_restrict_stbox(
+    temp: "const Temporal *", box: "const STBox *", border_inc: bool, atfunc: bool
+) -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.tnpoint_restrict_stbox(
+        temp_converted, box_converted, border_inc, atfunc
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_restrict_geom(
+    temp: "const Temporal *",
+    gs: "const GSERIALIZED *",
+    zspan: "const Span *",
+    atfunc: "const bool",
+) -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    zspan_converted = _ffi.cast("const Span *", zspan)
+    atfunc_converted = _ffi.cast("const bool", atfunc)
+    result = _lib.tpoint_restrict_geom(
+        temp_converted, gs_converted, zspan_converted, atfunc_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -17228,19 +17118,17 @@ def tpoint_restrict_stbox(
     return result if result != _ffi.NULL else None
 
 
-def tpointinst_restrict_geom_time(
+def tpointinst_restrict_geom(
     inst: "const TInstant *",
     gs: "const GSERIALIZED *",
     zspan: "const Span *",
-    period: "const Span *",
     atfunc: bool,
 ) -> "TInstant *":
     inst_converted = _ffi.cast("const TInstant *", inst)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     zspan_converted = _ffi.cast("const Span *", zspan)
-    period_converted = _ffi.cast("const Span *", period)
-    result = _lib.tpointinst_restrict_geom_time(
-        inst_converted, gs_converted, zspan_converted, period_converted, atfunc
+    result = _lib.tpointinst_restrict_geom(
+        inst_converted, gs_converted, zspan_converted, atfunc
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -17258,19 +17146,17 @@ def tpointinst_restrict_stbox(
     return result if result != _ffi.NULL else None
 
 
-def tpointseq_restrict_geom_time(
+def tpointseq_restrict_geom(
     seq: "const TSequence *",
     gs: "const GSERIALIZED *",
     zspan: "const Span *",
-    period: "const Span *",
     atfunc: bool,
 ) -> "Temporal *":
     seq_converted = _ffi.cast("const TSequence *", seq)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     zspan_converted = _ffi.cast("const Span *", zspan)
-    period_converted = _ffi.cast("const Span *", period)
-    result = _lib.tpointseq_restrict_geom_time(
-        seq_converted, gs_converted, zspan_converted, period_converted, atfunc
+    result = _lib.tpointseq_restrict_geom(
+        seq_converted, gs_converted, zspan_converted, atfunc
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -17288,19 +17174,17 @@ def tpointseq_restrict_stbox(
     return result if result != _ffi.NULL else None
 
 
-def tpointseqset_restrict_geom_time(
+def tpointseqset_restrict_geom(
     ss: "const TSequenceSet *",
     gs: "const GSERIALIZED *",
     zspan: "const Span *",
-    period: "const Span *",
     atfunc: bool,
 ) -> "TSequenceSet *":
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     zspan_converted = _ffi.cast("const Span *", zspan)
-    period_converted = _ffi.cast("const Span *", period)
-    result = _lib.tpointseqset_restrict_geom_time(
-        ss_converted, gs_converted, zspan_converted, period_converted, atfunc
+    result = _lib.tpointseqset_restrict_geom(
+        ss_converted, gs_converted, zspan_converted, atfunc
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -17936,6 +17820,20 @@ def tgeompointseqset_tgeogpointseqset(
 def tgeompoint_tgeogpoint(temp: "const Temporal *", oper: bool) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tgeompoint_tgeogpoint(temp_converted, oper)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompoint_tnpoint(temp: "const Temporal *") -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tgeompoint_tnpoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnpoint_tgeompoint(temp: "const Temporal *") -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tnpoint_tgeompoint(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
