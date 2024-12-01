@@ -49,8 +49,10 @@ def meos_initialize_modifier(_: str) -> str:
             os.environ["PROJ_DATA"] = proj_dir
             os.environ["PROJ_LIB"] = proj_dir
     
+    _lib.meos_initialize()
     tz_str_converted = tz_str.encode('utf-8') if tz_str is not None else _ffi.NULL
-    _lib.meos_initialize(tz_str_converted, _lib.py_error_handler)"""
+    _lib.meos_initialize_timezone(tz_str_converted)
+    _lib.meos_initialize_error_handler(_lib.py_error_handler)"""
 
 
 def remove_error_check_modifier(function: str) -> str:

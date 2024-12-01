@@ -298,6 +298,8 @@ def build_pymeos_functions(header_path="builder/meos.h"):
 
 
 def get_params(function: str, inner_params: str) -> List[Parameter]:
+    if not inner_params:
+        return []
     return [
         p
         for p in (

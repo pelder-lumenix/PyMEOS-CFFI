@@ -530,6 +530,8 @@ typedef struct
   SkipListElem *elems;
 } SkipList;
 
+typedef struct RTree RTree;
+
 typedef enum
 {
   MEOS_SUCCESS                  = 0,  
@@ -567,16 +569,16 @@ extern int meos_errno_reset(void);
 
 typedef void (*error_handler_fn)(int, int, const char *);
 
-/* extern void meos_initialize_timezone(const char *name);  (undefined) */
+extern void meos_initialize_timezone(const char *name);
 extern void meos_initialize_error_handler(error_handler_fn err_handler);
-/* extern void meos_finalize_timezone(void);  (undefined) */
+extern void meos_finalize_timezone(void);
 
 extern bool meos_set_datestyle(char *newval, void *extra);
 extern bool meos_set_intervalstyle(char *newval, int extra);
 extern char *meos_get_datestyle(void);
 extern char *meos_get_intervalstyle(void);
 
-extern void meos_initialize(const char *tz_str, error_handler_fn err_handler);
+extern void meos_initialize(void);
 extern void meos_finalize(void);
 
 extern DateADT add_date_int(DateADT d, int32 days);
@@ -585,6 +587,7 @@ extern TimestampTz add_timestamptz_interval(TimestampTz t, const Interval *inter
 extern bool bool_in(const char *str);
 extern char *bool_out(bool b);
 extern text *cstring2text(const char *str);
+extern Timestamp date_to_timestamp(DateADT dateVal);
 extern TimestampTz date_to_timestamptz(DateADT d);
 extern Interval *minus_date_date(DateADT d1, DateADT d2);
 extern DateADT minus_date_int(DateADT d, int32 days);
@@ -611,9 +614,10 @@ extern text *text_lower(const text *txt);
 extern char *text_out(const text *txt);
 extern text *text_upper(const text *txt);
 extern text *textcat_text_text(const text *txt1, const text *txt2);
+extern DateADT timestamp_to_date(Timestamp t);
 extern DateADT timestamptz_to_date(TimestampTz t);
 
-extern bytea *geo_as_ewkb(const GSERIALIZED *gs, const char *endian);
+extern uint8_t *geo_as_ewkb(const GSERIALIZED *gs, const char *endian, size_t *size);
 extern char *geo_as_ewkt(const GSERIALIZED *gs, int precision);
 extern char *geo_as_geojson(const GSERIALIZED *gs, int option, int precision, const char *srs);
 extern char *geo_as_hexewkb(const GSERIALIZED *gs, const char *endian);
@@ -1320,6 +1324,7 @@ extern bool stbox_tmax(const STBox *box, TimestampTz *result);
 extern bool stbox_tmax_inc(const STBox *box, bool *result);
 extern bool stbox_tmin(const STBox *box, TimestampTz *result);
 extern bool stbox_tmin_inc(const STBox *box, bool *result);
+extern double stbox_volume(const STBox *box);
 extern bool stbox_xmax(const STBox *box, double *result);
 extern bool stbox_xmin(const STBox *box, double *result);
 extern bool stbox_ymax(const STBox *box, double *result);
@@ -1350,6 +1355,7 @@ extern STBox *stbox_set_srid(const STBox *box, int32 srid);
 extern STBox *stbox_shift_scale_time(const STBox *box, const Interval *shift, const Interval *duration);
 extern STBox *stbox_transform(const STBox *box, int32 srid);
 extern STBox *stbox_transform_pipeline(const STBox *box, const char *pipelinestr, int32 srid, bool is_forward);
+extern STBox *stboxarr_round(const STBox *boxarr, int count, int maxdd);
 extern TBox *tbox_expand_time(const TBox *box, const Interval *interv);
 extern TBox *tbox_expand_float(const TBox *box, const double d);
 extern TBox *tbox_expand_int(const TBox *box, const int i);
@@ -1362,6 +1368,11 @@ extern TBox *union_tbox_tbox(const TBox *box1, const TBox *box2, bool strict);
 extern TBox *intersection_tbox_tbox(const TBox *box1, const TBox *box2);
 extern STBox *union_stbox_stbox(const STBox *box1, const STBox *box2, bool strict);
 extern STBox *intersection_stbox_stbox(const STBox *box1, const STBox *box2);
+
+extern RTree * rtree_create_stbox();
+extern void rtree_insert (RTree *rtree ,STBox *box, int64 id);
+extern int * rtree_search ( const RTree* rtree,const STBox * query, int * count);
+extern void rtree_free(RTree* rtree);
 
 extern bool adjacent_stbox_stbox(const STBox *box1, const STBox *box2);
 extern bool adjacent_tbox_tbox(const TBox *box1, const TBox *box2);
@@ -1780,6 +1791,8 @@ extern TBox *tnumber_tboxes(const Temporal *temp, int *count);
 extern TBox *tnumber_split_each_n_tboxes(const Temporal *temp, int elem_count, int *count);
 extern TBox *tnumber_split_n_tboxes(const Temporal *temp, int box_count, int *count);
 extern STBox *tpoint_stboxes(const Temporal *temp, int *count);
+extern STBox *tpoint_space_boxes(const Temporal *temp, double xsize, double ysize, double zsize, const GSERIALIZED *sorigin, bool bitmatrix, bool border_inc, int *count);
+extern STBox *tpoint_space_time_boxes(const Temporal *temp, double xsize, double ysize, double zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin, bool bitmatrix, bool border_inc, int *count);
 extern STBox *tpoint_split_each_n_stboxes(const Temporal *temp, int elem_count, int *count);
 extern STBox *tpoint_split_n_stboxes(const Temporal *temp, int box_count, int *count);
 extern GBOX *geo_split_each_n_gboxes(const GSERIALIZED *gs, int elem_count, int *count);
@@ -2098,27 +2111,58 @@ extern double temporal_frechet_distance(const Temporal *temp1, const Temporal *t
 extern Match *temporal_frechet_path(const Temporal *temp1, const Temporal *temp2, int *count);
 extern double temporal_hausdorff_distance(const Temporal *temp1, const Temporal *temp2);
 
-extern double float_bucket(double value, double size, double origin);
-extern Span *floatspan_bucket_list(const Span *bounds, double size, double origin, int *count);
-extern int int_bucket(int value, int size, int origin);
-extern Span *intspan_bucket_list(const Span *bounds, int size, int origin, int *count);
-extern STBox *stbox_space_tile(const GSERIALIZED *point, double xsize, double ysize, double zsize, const GSERIALIZED *sorigin);
+extern int64 bigint_get_bin(int64 value, int64 vsize, int64 vorigin);
+/* extern Span *bigintspan_bins(const Span *s, int64 vsize, int64 vorigin, int *count);  (undefined) */
+/* extern Span *bigintspanset_bins(const SpanSet *ss, int64 vsize, int64 vorigin, int *count);  (undefined) */
+extern Span *bigintspanset_value_spans(const SpanSet *ss, int64 vsize, int64 vorigin, int *count);
+extern DateADT date_get_bin(DateADT d, const Interval *duration, DateADT torigin);
+extern Span *datespan_bins(const Span *s, const Interval *duration, DateADT torigin, int *count);
+/* extern Span *datespanset_bins(const SpanSet *ss, const Interval *duration, DateADT torigin, int *count);  (undefined) */
+extern Span *datespanset_time_spans(const SpanSet *ss, const Interval *duration, DateADT torigin, int *count);
+extern double float_get_bin(double value, double vsize, double vorigin);
+extern Span *floatspan_bins(const Span *s, double vsize, double vorigin, int *count);
+/* extern Span *floatspanset_bins(const SpanSet *ss, double vsize, double vorigin,
+  int *count);  (undefined) */
+extern Span *floatspanset_value_spans(const SpanSet *ss, double vsize, double vorigin, int *count);
+extern int int_get_bin(int value, int vsize, int vorigin);
+extern Span *intspan_bins(const Span *s, int vsize, int vorigin, int *count);
+/* extern Span *intspanset_bins(const SpanSet *ss, int vsize, int vorigin, int *count);  (undefined) */
+extern Span *intspanset_value_spans(const SpanSet *ss, int vsize, int vorigin, int *count);
+extern TimestampTz timestamptz_get_bin(TimestampTz t, const Interval *duration, TimestampTz torigin);
+extern Span *tstzspan_bins(const Span *s, const Interval *duration, TimestampTz origin, int *count);
+/* extern Span *tstzspanset_bins(const SpanSet *ss, const Interval *duration, TimestampTz torigin, int *count);  (undefined) */
+extern Span *tstzspanset_time_spans(const SpanSet *ss, const Interval *duration, TimestampTz torigin, int *count);
+
+extern STBox *stbox_get_space_tile(const GSERIALIZED *point, double xsize, double ysize, double zsize, const GSERIALIZED *sorigin);
+extern STBox *stbox_get_space_time_tile(const GSERIALIZED *point, TimestampTz t, double xsize, double ysize, double zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin);
+extern STBox *stbox_get_time_tile(TimestampTz t, const Interval *duration, TimestampTz torigin);
 extern STBox *stbox_space_tiles(const STBox *bounds, double xsize, double ysize, double zsize, const GSERIALIZED *sorigin, bool border_inc, int *count);
-extern STBox *stbox_space_time_tile(const GSERIALIZED *point, TimestampTz t, double xsize, double ysize, double zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin);
 extern STBox *stbox_space_time_tiles(const STBox *bounds, double xsize, double ysize, double zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin, bool border_inc, int *count);
-extern Temporal **temporal_time_split(const Temporal *temp, const Interval *duration, TimestampTz torigin, TimestampTz **time_buckets, int *count);
-extern Temporal **tfloat_value_split(const Temporal *temp, double size, double origin, double **value_buckets, int *count);
-extern Temporal **tfloat_value_time_split(const Temporal *temp, double size, const Interval *duration, double vorigin, TimestampTz torigin, double **value_buckets, TimestampTz **time_buckets, int *count);
-extern TBox *tfloatbox_value_time_tile(double value, TimestampTz t, double vsize, const Interval *duration, double vorigin, TimestampTz torigin);
-extern TBox *tfloatbox_value_time_tiles(const TBox *box, double xsize, const Interval *duration, double xorigin, TimestampTz torigin, int *count);
-extern TimestampTz timestamptz_bucket(TimestampTz timestamp, const Interval *duration, TimestampTz origin);
-extern Temporal **tint_value_split(const Temporal *temp, int size, int origin, int **value_buckets, int *count);
-extern Temporal **tint_value_time_split(const Temporal *temp, int size, const Interval *duration, int vorigin, TimestampTz torigin, int **value_buckets, TimestampTz **time_buckets, int *count);
-extern TBox *tintbox_value_time_tile(int value, TimestampTz t, int vsize, const Interval *duration, int vorigin, TimestampTz torigin);
+/* extern STBox *stbox_time_tiles(const STBox *bounds, const Interval *duration, TimestampTz torigin, bool border_inc, int *count);  (undefined) */
+extern Span *temporal_time_spans(const Temporal *temp, const Interval *duration, TimestampTz origin, int *count);
+extern Temporal **temporal_time_split(const Temporal *temp, const Interval *duration, TimestampTz torigin, TimestampTz **time_bins, int *count);
+extern Span *tfloat_value_spans(const Temporal *temp, double vsize, double vorigin, int *count);
+extern Temporal **tfloat_value_split(const Temporal *temp, double vsize, double vorigin, double **value_bins, int *count);
+extern Temporal **tfloat_value_time_split(const Temporal *temp, double vsize, const Interval *duration, double vorigin, TimestampTz torigin, double **value_bins, TimestampTz **time_bins, int *count);
+extern TBox *tfloatbox_get_time_tile(TimestampTz t, const Interval *duration, TimestampTz torigin);
+extern TBox *tfloatbox_get_value_tile(double value, double vsize, double vorigin);
+extern TBox *tfloatbox_get_value_time_tile(double value, TimestampTz t, double vsize, const Interval *duration, double vorigin, TimestampTz torigin);
+/* extern TBox *tfloatbox_time_tiles(const TBox *box, const Interval *duration, TimestampTz torigin, int *count);  (undefined) */
+/* extern TBox *tfloatbox_value_tiles(const TBox *box, double vsize, double vorigin, int *count);  (undefined) */
+extern TBox *tfloatbox_value_time_tiles(const TBox *box, double vsize, const Interval *duration, double vorigin, TimestampTz torigin, int *count);
+/* extern TimestampTz timestamptz_get_bin(TimestampTz timestamp, const Interval *duration, TimestampTz torigin);  (repeated) */
+extern Span *tint_value_spans(const Temporal *temp, int vsize, int vorigin, int *count);
+extern Temporal **tint_value_split(const Temporal *temp, int vsize, int vorigin, int **value_bins, int *count);
+extern Temporal **tint_value_time_split(const Temporal *temp, int size, const Interval *duration, int vorigin, TimestampTz torigin, int **value_bins, TimestampTz **time_bins, int *count);
+extern TBox *tintbox_get_time_tile(TimestampTz t, const Interval *duration, TimestampTz torigin);
+extern TBox *tintbox_get_value_tile(int value, int vsize, int vorigin);
+extern TBox *tintbox_get_value_time_tile(int value, TimestampTz t, int vsize, const Interval *duration, int vorigin, TimestampTz torigin);
+/* extern TBox *tintbox_time_tiles(const TBox *box, const Interval *duration, TimestampTz torigin, int *count);  (undefined) */
+/* extern TBox *tintbox_value_tiles(const TBox *box, int xsize, int xorigin, int *count);  (undefined) */
 extern TBox *tintbox_value_time_tiles(const TBox *box, int xsize, const Interval *duration, int xorigin, TimestampTz torigin, int *count);
-extern Temporal **tpoint_space_split(const Temporal *temp, float xsize, float ysize, float zsize, const GSERIALIZED *sorigin, bool bitmatrix, bool border_inc, GSERIALIZED ***space_buckets, int *count);
-extern Temporal **tpoint_space_time_split(const Temporal *temp, float xsize, float ysize, float zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin, bool bitmatrix, bool border_inc, GSERIALIZED ***space_buckets, TimestampTz **time_buckets, int *count);
-extern Span *tstzspan_bucket_list(const Span *bounds, const Interval *duration, TimestampTz origin, int *count);
+extern Temporal **tpoint_space_split(const Temporal *temp, double xsize, double ysize, double zsize, const GSERIALIZED *sorigin, bool bitmatrix, bool border_inc, GSERIALIZED ***space_bins, int *count);
+extern Temporal **tpoint_space_time_split(const Temporal *temp, double xsize, double ysize, double zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin, bool bitmatrix, bool border_inc, GSERIALIZED ***space_bins, TimestampTz **time_bins, int *count);
+/* extern Temporal **tpoint_time_split(const Temporal *temp, const Interval *duration, TimestampTz torigin, bool border_inc, TimestampTz **time_bins, int *count);  (undefined) */
 
 //-------------------- meos_catalog.h --------------------
 
@@ -2560,7 +2604,7 @@ extern void tstzspan_set_tbox(const Span *s, TBox *box);
 extern void tstzspanset_set_stbox(const SpanSet *ss, STBox *box);
 extern void tstzspanset_set_tbox(const SpanSet *ss, TBox *box);
 
-extern TBox *tbox_shift_scale_value(const TBox *box, Datum shift, Datum width, meosType basetype, bool hasshift, bool haswidth);
+extern TBox *tbox_shift_scale_value(const TBox *box, Datum shift, Datum width, bool hasshift, bool haswidth);
 extern void stbox_expand(const STBox *box1, STBox *box2);
 extern void tbox_expand(const TBox *box1, TBox *box2);
 
@@ -2915,8 +2959,17 @@ extern void skiplist_free(SkipList *list);
 extern Temporal *temporal_app_tinst_transfn(Temporal *state, const TInstant *inst, double maxdist, const Interval *maxt);
 extern Temporal *temporal_app_tseq_transfn(Temporal *state, const TSequence *seq);
 
-extern Temporal **tnumber_value_split(const Temporal *temp, Datum size, Datum origin, Datum **buckets, int *count);
-extern TBox *tbox_value_time_tile(Datum value, TimestampTz t, Datum vsize, const Interval *duration, Datum vorigin, TimestampTz torigin, meosType basetype);
+/* extern Span *numspanset_spans(const SpanSet *ss, Datum vsize, Datum vorigin, int *count);  (undefined) */
+extern Span *spanset_time_spans(const SpanSet *ss, const Interval *duration, Datum torigin, int *count);
+extern Span *spanset_value_spans(const SpanSet *ss, Datum vsize, Datum vorigin, int *count);
+/* extern Span *timespanset_spans(const SpanSet *ss, const Interval *duration, Datum torigin, int *count);  (undefined) */
+extern Span *tnumber_value_spans(const Temporal *temp, Datum size, Datum origin, int *count);
+/* extern TBox *tnumber_value_boxes(const Temporal *temp, Datum vsize, Datum vorigin, int *count);  (undefined) */
+/* extern TBox *tnumber_time_boxes(const Temporal *temp, const Interval *duration, TimestampTz torigin, int *count);  (undefined) */
+extern TBox *tnumber_value_time_boxes(const Temporal *temp, Datum vsize, const Interval *duration, Datum vorigin, TimestampTz torigin, int *count);
+extern Temporal **tnumber_value_split(const Temporal *temp, Datum vsize, Datum vorigin, Datum **bins, int *count);
+extern TBox *tbox_get_value_time_tile(Datum value, TimestampTz t, Datum vsize, const Interval *duration, Datum vorigin, TimestampTz torigin, meosType basetype, meosType spantype);
+extern Temporal **tnumber_value_time_split(const Temporal *temp, Datum size, const Interval *duration, Datum vorigin, TimestampTz torigin, Datum **value_bins, TimestampTz **time_bins, int *count);
 
  
 
